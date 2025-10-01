@@ -102,8 +102,11 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
       // Synchroniser avec le backend
       const backendEntry = await journalService.createEntry(user.id, {
         mood: convertMoodToBackend(mood),
-        contentText: content
-        // TODO V2: Ajouter color, coverImage, tags quand backend sera mis à jour
+        contentText: content,
+        // V2: Champs de personnalisation
+        color: color || 'pink',
+        coverImage: coverImage,
+        tags: tags || []
       });
 
       // Mettre à jour l'entrée locale avec les données du backend
@@ -156,8 +159,11 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
       try {
         await journalService.updateEntry(user.id, entryId, {
           mood: convertMoodToBackend(mood),
-          contentText: content
-          // TODO V2: Ajouter color, coverImage, tags quand backend sera mis à jour
+          contentText: content,
+          // V2: Champs de personnalisation
+          color: color || 'pink',
+          coverImage: coverImage,
+          tags: tags || []
         });
         
         // Marquer comme synchronisé
@@ -202,6 +208,11 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
         timestamp: new Date(entry.createdAt),
         isPrivate: true,
         synced: true,
+        // V2: Champs de personnalisation
+        color: entry.color || 'pink',
+        coverImage: entry.coverImage,
+        tags: entry.tags || [],
+        // Analyse IA
         aiRiskScore: entry.aiRiskScore,
         aiRiskLevel: entry.aiRiskLevel,
         aiSummary: entry.aiSummary,

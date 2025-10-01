@@ -17,16 +17,16 @@ export default function DaySelector({ selectedDate, onDateSelect }: DaySelectorP
   // Récupérer les entrées de l'utilisateur
   const userEntries = user ? getUserEntries(user.id) : [];
 
-  // Générer les jours de la semaine (seulement passés + aujourd'hui)
+  // Générer les jours (3 semaines : précédente, actuelle, suivante)
   useEffect(() => {
     const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Commencer le lundi
+    const startDate = new Date(currentWeek);
+    startDate.setDate(currentWeek.getDate() - 7); // Commencer 1 semaine avant
 
     const days = [];
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(startOfWeek);
-      day.setDate(startOfWeek.getDate() + i);
+    for (let i = 0; i < 21; i++) { // 3 semaines
+      const day = new Date(startDate);
+      day.setDate(startDate.getDate() + i);
       
       // Ne garder que les jours passés et aujourd'hui
       if (day <= today) {
@@ -40,9 +40,9 @@ export default function DaySelector({ selectedDate, onDateSelect }: DaySelectorP
     setCurrentWeek(prev => {
       const newWeek = new Date(prev);
       if (direction === 'prev') {
-        newWeek.setDate(newWeek.getDate() - 7);
+        newWeek.setDate(newWeek.getDate() - 14); // Naviguer de 2 semaines
       } else {
-        newWeek.setDate(newWeek.getDate() + 7);
+        newWeek.setDate(newWeek.getDate() + 14); // Naviguer de 2 semaines
       }
       return newWeek;
     });
@@ -101,18 +101,22 @@ export default function DaySelector({ selectedDate, onDateSelect }: DaySelectorP
       {/* Header avec navigation */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-semibold text-gray-800">
-          {formatMonth(weekDays[0])} {weekDays[0]?.getFullYear()}
+          {weekDays.length > 0 ? (
+            weekDays.length === 1 
+              ? `${formatMonth(weekDays[0])} ${weekDays[0]?.getFullYear()}`
+              : `${formatMonth(weekDays[0])} - ${formatMonth(weekDays[weekDays.length - 1])} ${weekDays[0]?.getFullYear()}`
+          ) : 'Aucun jour disponible'}
         </h3>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1">
           <button
             onClick={() => navigateWeek('prev')}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
           >
             <ChevronLeft className="w-4 h-4 text-gray-600" />
           </button>
           <button
             onClick={() => navigateWeek('next')}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
           >
             <ChevronRight className="w-4 h-4 text-gray-600" />
           </button>

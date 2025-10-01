@@ -24,7 +24,17 @@ export default function DiarySection() {
   const [selectedMood, setSelectedMood] = useState<keyof typeof moodIcons>('neutral');
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   // V2: Nouveaux états pour personnalisation
-  const [selectedColor, setSelectedColor] = useState('pink');
+  const [selectedColor, setSelectedColor] = useState(() => {
+    // Charger la couleur sauvegardée ou utiliser 'pink' par défaut
+    const savedColor = localStorage.getItem('melio_selected_color');
+    return savedColor || 'pink';
+  });
+
+  // Fonction pour mettre à jour la couleur et la sauvegarder
+  const updateSelectedColor = (color: string) => {
+    setSelectedColor(color);
+    localStorage.setItem('melio_selected_color', color);
+  };
   const [selectedCoverImage, setSelectedCoverImage] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -57,7 +67,8 @@ export default function DiarySection() {
       await addEntry(newEntry.trim(), selectedMood, selectedColor, selectedCoverImage || undefined, selectedTags);
       setNewEntry('');
       setSelectedMood('neutral');
-      setSelectedColor('pink');
+      // Garder la couleur sélectionnée pour la prochaine entrée
+      // setSelectedColor('pink'); // Supprimé pour garder la couleur
       setSelectedCoverImage(null);
       setSelectedTags([]);
       setIsWriting(false);
@@ -76,7 +87,7 @@ export default function DiarySection() {
     setEditingEntry(entry);
     setNewEntry(entry.content);
     setSelectedMood(entry.mood);
-    setSelectedColor(entry.color || 'pink');
+    updateSelectedColor(entry.color || selectedColor); // Garder la couleur actuelle si pas de couleur dans l'entrée
     setSelectedCoverImage(entry.coverImage || null);
     setSelectedTags(entry.tags || []);
   };
@@ -88,7 +99,8 @@ export default function DiarySection() {
       setEditingEntry(null);
       setNewEntry('');
       setSelectedMood('neutral');
-      setSelectedColor('pink');
+      // Garder la couleur sélectionnée
+      // setSelectedColor('pink'); // Supprimé pour garder la couleur
       setSelectedCoverImage(null);
       setSelectedTags([]);
     }
@@ -231,26 +243,21 @@ export default function DiarySection() {
                 <Palette className="w-4 h-4 inline mr-2" />
                 Choisis une couleur pour ta feuille
               </label>
-              <div className="flex items-center gap-2">
-                <div className="flex flex-wrap gap-1.5">
-                  {DIARY_COLORS.map((color) => (
-                    <button
-                      key={color.id}
-                      type="button"
-                      onClick={() => setSelectedColor(color.id)}
-                      className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
-                        selectedColor === color.id
-                          ? 'border-gray-800 scale-110 shadow-md ring-2 ring-gray-200'
-                          : 'border-gray-300 hover:scale-105'
-                      }`}
-                      style={{ backgroundColor: color.accent }}
-                      title={color.name}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-gray-600 ml-2">
-                  {DIARY_COLORS.find(c => c.id === selectedColor)?.name}
-                </span>
+              <div className="flex flex-wrap gap-1.5">
+                {DIARY_COLORS.map((color) => (
+                  <button
+                    key={color.id}
+                    type="button"
+                    onClick={() => updateSelectedColor(color.id)}
+                    className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
+                      selectedColor === color.id
+                        ? 'border-gray-800 scale-110 shadow-md ring-2 ring-gray-200'
+                        : 'border-gray-300 hover:scale-105'
+                    }`}
+                    style={{ backgroundColor: color.accent }}
+                    title={color.name}
+                  />
+                ))}
               </div>
             </div>
 
@@ -541,7 +548,8 @@ export default function DiarySection() {
                   setEditingEntry(null);
                   setNewEntry('');
                   setSelectedMood('neutral');
-                  setSelectedColor('pink');
+                  // Garder la couleur sélectionnée
+                  // setSelectedColor('pink'); // Supprimé pour garder la couleur
                   setSelectedCoverImage(null);
                   setSelectedTags([]);
                 }}
@@ -584,26 +592,21 @@ export default function DiarySection() {
                   <Palette className="w-4 h-4 inline mr-2" />
                   Couleur
                 </label>
-                <div className="flex items-center gap-2">
-                  <div className="flex flex-wrap gap-1.5">
-                    {DIARY_COLORS.map((color) => (
-                      <button
-                        key={color.id}
-                        type="button"
-                        onClick={() => setSelectedColor(color.id)}
-                        className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
-                          selectedColor === color.id
-                            ? 'border-gray-800 scale-110 shadow-md ring-2 ring-gray-200'
-                            : 'border-gray-300 hover:scale-105'
-                        }`}
-                        style={{ backgroundColor: color.accent }}
-                        title={color.name}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-600 ml-2">
-                    {DIARY_COLORS.find(c => c.id === selectedColor)?.name}
-                  </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {DIARY_COLORS.map((color) => (
+                    <button
+                      key={color.id}
+                      type="button"
+                      onClick={() => updateSelectedColor(color.id)}
+                      className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
+                        selectedColor === color.id
+                          ? 'border-gray-800 scale-110 shadow-md ring-2 ring-gray-200'
+                          : 'border-gray-300 hover:scale-105'
+                      }`}
+                      style={{ backgroundColor: color.accent }}
+                      title={color.name}
+                    />
+                  ))}
                 </div>
               </div>
 
@@ -704,7 +707,8 @@ export default function DiarySection() {
                     setEditingEntry(null);
                     setNewEntry('');
                     setSelectedMood('neutral');
-                    setSelectedColor('pink');
+                    // Garder la couleur sélectionnée
+                    // setSelectedColor('pink'); // Supprimé pour garder la couleur
                     setSelectedCoverImage(null);
                     setSelectedTags([]);
                   }}
