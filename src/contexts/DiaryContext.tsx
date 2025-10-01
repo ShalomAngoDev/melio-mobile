@@ -209,8 +209,16 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
       }));
 
       // Fusionner avec les entrées locales (garder les entrées non synchronisées)
-      const localUnsynced = entries.filter(entry => !entry.synced);
-      const allEntries = [...convertedEntries, ...localUnsynced].sort((a, b) => 
+      const backendIds = new Set(convertedEntries.map(e => e.id));
+      const localUnsynced = entries.filter(entry => !entry.synced && !backendIds.has(entry.id));
+      
+      // Utiliser un Map pour éviter les doublons par ID
+      const entriesMap = new Map<string, DiaryEntry>();
+      [...convertedEntries, ...localUnsynced].forEach(entry => {
+        entriesMap.set(entry.id, entry);
+      });
+      
+      const allEntries = Array.from(entriesMap.values()).sort((a, b) => 
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
 
