@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BookOpen, User, LogOut, Shield, Sparkles, Heart, Megaphone, X, School, GraduationCap, Hash, Phone } from 'lucide-react';
+import { BookOpen, User, LogOut, Shield, Sparkles, Heart, Megaphone, X, School, GraduationCap, Hash, Phone, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useChat } from '../../contexts/ChatContext';
 import DiarySection from './DiarySection';
@@ -15,7 +15,7 @@ export default function StudentDashboard() {
 
   const menuItems = [
     { id: 'diary', label: 'Mon Journal', icon: BookOpen, color: 'pink' },
-    { id: 'chat', label: 'Parler à Mélio', icon: Heart, color: 'purple' },
+    { id: 'chat', label: 'Parler à Mélio', icon: MessageCircle, color: 'purple' },
     { id: 'library', label: 'Bibliothèque', icon: Sparkles, color: 'blue' },
     { id: 'report', label: 'Signalement', icon: Megaphone, color: 'pink' }
   ];
