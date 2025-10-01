@@ -17,7 +17,6 @@ export default function StudentDashboard() {
   const menuItems = [
     { id: 'diary', label: 'Mon Journal', icon: BookOpen, color: 'pink' },
     { id: 'chat', label: 'Parler à Mélio', icon: MessageCircle, color: 'purple' },
-    { id: 'achievements', label: 'Mes Badges', icon: Trophy, color: 'yellow' },
     { id: 'library', label: 'Bibliothèque', icon: Sparkles, color: 'blue' },
     { id: 'report', label: 'Signalement', icon: Megaphone, color: 'pink' }
   ];
@@ -38,7 +37,8 @@ export default function StudentDashboard() {
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
+              {/* Bouton Profil */}
               <button
                 onClick={() => setShowProfile(true)}
                 className="flex items-center bg-white/60 rounded-full px-4 py-2 hover:bg-white/80 transition-all duration-200"
@@ -46,6 +46,21 @@ export default function StudentDashboard() {
                 <User className="w-4 h-4 text-gray-600 mr-2" />
                 <span className="text-sm font-medium text-gray-700">{user?.name}</span>
               </button>
+
+              {/* Bouton Mes Badges */}
+              <button
+                onClick={() => setActiveSection('achievements')}
+                className={`p-2 rounded-full transition-all duration-200 ${
+                  activeSection === 'achievements'
+                    ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md'
+                    : 'bg-white/60 hover:bg-white/80 text-gray-700'
+                }`}
+                title="Mes Badges"
+              >
+                <Trophy className="w-5 h-5" />
+              </button>
+
+              {/* Bouton Déconnexion */}
               <button
                 onClick={logout}
                 className="p-2 text-gray-600 hover:text-gray-800 hover:bg-white/60 rounded-full transition-all duration-200"

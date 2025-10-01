@@ -16,8 +16,9 @@ const moodIcons = {
 
 export default function DiarySection() {
   const { user } = useAuth();
-  const { addEntry, getUserEntries, deleteEntry, syncEntries, isLoading, syncError } = useDiary();
+  const { addEntry, updateEntry, getUserEntries, deleteEntry, syncEntries, isLoading, syncError } = useDiary();
   const [isWriting, setIsWriting] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<any>(null);
   const [newEntry, setNewEntry] = useState('');
   const [selectedMood, setSelectedMood] = useState<keyof typeof moodIcons>('neutral');
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
@@ -58,6 +59,28 @@ export default function DiarySection() {
         ? prev.filter(id => id !== tagId)
         : [...prev, tagId]
     );
+  };
+
+  const openEditModal = (entry: any) => {
+    setEditingEntry(entry);
+    setNewEntry(entry.content);
+    setSelectedMood(entry.mood);
+    setSelectedColor(entry.color || 'pink');
+    setSelectedCoverImage(entry.coverImage || null);
+    setSelectedTags(entry.tags || []);
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newEntry.trim() && editingEntry) {
+      await updateEntry(editingEntry.id, newEntry.trim(), selectedMood, selectedColor, selectedCoverImage || undefined, selectedTags);
+      setEditingEntry(null);
+      setNewEntry('');
+      setSelectedMood('neutral');
+      setSelectedColor('pink');
+      setSelectedCoverImage(null);
+      setSelectedTags([]);
+    }
   };
 
   const formatDate = (date: Date) => {
@@ -467,6 +490,194 @@ export default function DiarySection() {
         </div>
       )}
 
+      {/* Modal d'édition d'une entrée */}
+      {editingEntry && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-800">Modifier ton entrée</h3>
+              <button
+                onClick={() => {
+                  setEditingEntry(null);
+                  setNewEntry('');
+                  setSelectedMood('neutral');
+                  setSelectedColor('pink');
+                  setSelectedCoverImage(null);
+                  setSelectedTags([]);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdate} className="space-y-4">
+              {/* Humeur */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Comment te sens-tu ?
+                </label>
+                <div className="flex space-x-3">
+                  {Object.entries(moodIcons).map(([mood, config]) => {
+                    const Icon = config.icon;
+                    return (
+                      <button
+                        key={mood}
+                        type="button"
+                        onClick={() => setSelectedMood(mood as keyof typeof moodIcons)}
+                        className={`p-3 rounded-2xl border-2 transition-all duration-200 ${
+                          selectedMood === mood
+                            ? `${config.bg} border-current ${config.color}`
+                            : 'bg-gray-50 border-gray-200 text-gray-400 hover:bg-gray-100'
+                        }`}
+                      >
+                        <Icon className="w-6 h-6" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Couleur */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <Palette className="w-4 h-4 inline mr-2" />
+                  Couleur
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap gap-1.5">
+                    {DIARY_COLORS.map((color) => (
+                      <button
+                        key={color.id}
+                        type="button"
+                        onClick={() => setSelectedColor(color.id)}
+                        className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
+                          selectedColor === color.id
+                            ? 'border-gray-800 scale-110 shadow-md ring-2 ring-gray-200'
+                            : 'border-gray-300 hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: color.accent }}
+                        title={color.name}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-600 ml-2">
+                    {DIARY_COLORS.find(c => c.id === selectedColor)?.name}
+                  </span>
+                </div>
+              </div>
+
+              {/* Image de couverture */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <ImageIcon className="w-4 h-4 inline mr-2" />
+                  Image de couverture
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowCoverPicker(true)}
+                  className="w-full py-3 px-4 bg-gray-50 hover:bg-gray-100 border-2 border-gray-300 rounded-2xl transition-all duration-200 flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-3">
+                    {selectedCoverImage ? (
+                      <>
+                        <div className="w-12 h-8 rounded-lg overflow-hidden border border-gray-300">
+                          <img 
+                            src={COVER_IMAGES.find(img => img.id === selectedCoverImage)?.url || ''} 
+                            alt="Aperçu"
+                            className="w-full h-full object-cover"
+                            onError={(e) => e.currentTarget.style.display = 'none'}
+                          />
+                        </div>
+                        <span className="text-sm text-gray-700">
+                          {COVER_IMAGES.find(img => img.id === selectedCoverImage)?.name}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-sm text-gray-500">Aucune image</span>
+                    )}
+                  </div>
+                  <ImageIcon className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <TagIcon className="w-4 h-4 inline mr-2" />
+                  Catégories
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowTagPicker(true)}
+                  className="w-full py-3 px-4 bg-gray-50 hover:bg-gray-100 border-2 border-gray-300 rounded-2xl transition-all duration-200 flex items-center justify-between"
+                >
+                  <div className="flex items-center flex-wrap gap-2">
+                    {selectedTags.length > 0 ? (
+                      selectedTags.map(tagId => {
+                        const tag = getTagById(tagId);
+                        if (!tag) return null;
+                        return (
+                          <span 
+                            key={tagId}
+                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                            style={{ backgroundColor: tag.color + '20', color: tag.color }}
+                          >
+                            <span className="mr-1">{tag.icon}</span>
+                            {tag.name}
+                          </span>
+                        );
+                      })
+                    ) : (
+                      <span className="text-sm text-gray-500">Aucune catégorie</span>
+                    )}
+                  </div>
+                  <TagIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                </button>
+              </div>
+
+              {/* Contenu */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Modifier le texte
+                </label>
+                <textarea
+                  value={newEntry}
+                  onChange={(e) => setNewEntry(e.target.value)}
+                  className="w-full h-40 px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none transition-all duration-200"
+                  placeholder="Raconte ta journée, tes émotions, tes pensées..."
+                  required
+                />
+              </div>
+
+              {/* Boutons */}
+              <div className="flex space-x-3 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-2xl font-medium hover:from-pink-600 hover:to-purple-700 transition-all duration-200"
+                >
+                  Enregistrer les modifications
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingEntry(null);
+                    setNewEntry('');
+                    setSelectedMood('neutral');
+                    setSelectedColor('pink');
+                    setSelectedCoverImage(null);
+                    setSelectedTags([]);
+                  }}
+                  className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-2xl font-medium hover:bg-gray-300 transition-all duration-200"
+                >
+                  Annuler
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Entries List */}
       <div className="relative space-y-4" style={{ zIndex: 1 }}>
         {userEntries.length === 0 ? (
@@ -483,7 +694,8 @@ export default function DiarySection() {
             return (
               <div
                 key={entry.id}
-                className="group relative bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-md rounded-3xl p-6 shadow-lg border-2 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 overflow-hidden"
+                onClick={() => openEditModal(entry)}
+                className="group relative bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-md rounded-3xl p-6 shadow-lg border-2 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 overflow-hidden cursor-pointer"
                 style={{ 
                   borderColor: entryColorConfig.accent + '40',
                 }}
@@ -535,7 +747,12 @@ export default function DiarySection() {
                     </div>
                     
                     <button
-                      onClick={() => deleteEntry(entry.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm('Supprimer cette entrée ?')) {
+                          deleteEntry(entry.id);
+                        }
+                      }}
                       className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 hover:scale-110"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -574,7 +791,10 @@ export default function DiarySection() {
                     
                     {entry.content.length > 150 && (
                       <button
-                        onClick={() => toggleExpanded(entry.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleExpanded(entry.id);
+                        }}
                         className="mt-3 flex items-center text-sm font-medium text-pink-600 hover:text-pink-700 bg-pink-50 hover:bg-pink-100 px-4 py-2 rounded-full transition-all duration-200"
                       >
                         {expandedEntries.has(entry.id) ? (

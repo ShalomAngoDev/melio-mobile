@@ -156,6 +156,12 @@ export const journalService = {
     const response = await api.get(`/students/${studentId}/journal/${entryId}`);
     return response.data;
   },
+
+  // Mettre à jour une entrée de journal
+  updateEntry: async (studentId: string, entryId: string, data: CreateJournalEntryDto): Promise<JournalEntry> => {
+    const response = await api.patch(`/students/${studentId}/journal/${entryId}`, data);
+    return response.data;
+  },
 };
 
 

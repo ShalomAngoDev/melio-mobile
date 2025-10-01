@@ -24,6 +24,7 @@ export interface DiaryEntry {
 interface DiaryContextType {
   entries: DiaryEntry[];
   addEntry: (content: string, mood: DiaryEntry['mood'], color?: string, coverImage?: string, tags?: string[]) => Promise<void>;
+  updateEntry: (entryId: string, content: string, mood: DiaryEntry['mood'], color?: string, coverImage?: string, tags?: string[]) => Promise<void>;
   getUserEntries: (userId: string) => DiaryEntry[];
   deleteEntry: (entryId: string) => void;
   syncEntries: () => Promise<void>;
@@ -131,6 +132,51 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
   const getUserEntries = (userId: string) => 
     entries.filter(entry => entry.userId === userId);
 
+  const updateEntry = async (entryId: string, content: string, mood: DiaryEntry['mood'], color?: string, coverImage?: string, tags?: string[]) => {
+    // Mettre à jour localement d'abord
+    const updatedEntries = entries.map(entry => {
+      if (entry.id === entryId) {
+        return {
+          ...entry,
+          content,
+          mood,
+          color: color || entry.color,
+          coverImage: coverImage !== undefined ? coverImage : entry.coverImage,
+          tags: tags || entry.tags,
+          synced: false // Marquer comme non synchronisé
+        };
+      }
+      return entry;
+    });
+    setEntries(updatedEntries);
+    localStorage.setItem('melio_diary', JSON.stringify(updatedEntries));
+
+    // Synchroniser avec le backend si possible
+    if (user) {
+      try {
+        await journalService.updateEntry(user.id, entryId, {
+          mood: convertMoodToBackend(mood),
+          contentText: content
+          // TODO V2: Ajouter color, coverImage, tags quand backend sera mis à jour
+        });
+        
+        // Marquer comme synchronisé
+        const syncedEntries = updatedEntries.map(entry => {
+          if (entry.id === entryId) {
+            return { ...entry, synced: true };
+          }
+          return entry;
+        });
+        setEntries(syncedEntries);
+        localStorage.setItem('melio_diary', JSON.stringify(syncedEntries));
+        
+      } catch (error) {
+        console.error('Erreur lors de la synchronisation de la modification:', error);
+        // L'entrée reste en local comme non synchronisée
+      }
+    }
+  };
+
   const deleteEntry = (entryId: string) => {
     const updatedEntries = entries.filter(entry => entry.id !== entryId);
     setEntries(updatedEntries);
@@ -190,6 +236,7 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
     <DiaryContext.Provider value={{
       entries,
       addEntry,
+      updateEntry,
       getUserEntries,
       deleteEntry,
       syncEntries,
