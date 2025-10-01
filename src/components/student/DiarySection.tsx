@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pencil, Calendar, Trash2, Heart, Frown, Meh, Smile, ChevronDown, ChevronUp, Palette, Image as ImageIcon } from 'lucide-react';
+import { Pencil, Calendar, Trash2, Heart, Frown, Meh, Smile, ChevronDown, ChevronUp, Palette, Image as ImageIcon, X } from 'lucide-react';
 import { useDiary } from '../../contexts/DiaryContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { DIARY_COLORS, COVER_IMAGES, getColorConfig } from '../../config/diaryCustomization';
@@ -131,80 +131,69 @@ export default function DiarySection() {
               </p>
             </div>
 
-            {/* V2: Sélecteur de couleur */}
+            {/* V2: Sélecteur de couleur compact */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Palette className="w-4 h-4 inline mr-2" />
                 Choisis une couleur pour ta feuille
               </label>
-              <div className="flex flex-wrap gap-2">
-                {DIARY_COLORS.map((color) => (
-                  <button
-                    key={color.id}
-                    type="button"
-                    onClick={() => setSelectedColor(color.id)}
-                    className={`w-12 h-12 rounded-full border-2 transition-all duration-200 ${
-                      selectedColor === color.id
-                        ? 'border-gray-800 scale-110 shadow-lg'
-                        : 'border-gray-300 hover:scale-105'
-                    }`}
-                    style={{ backgroundColor: color.accent }}
-                    title={color.name}
-                  />
-                ))}
+              <div className="flex items-center gap-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {DIARY_COLORS.map((color) => (
+                    <button
+                      key={color.id}
+                      type="button"
+                      onClick={() => setSelectedColor(color.id)}
+                      className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
+                        selectedColor === color.id
+                          ? 'border-gray-800 scale-110 shadow-md ring-2 ring-gray-200'
+                          : 'border-gray-300 hover:scale-105'
+                      }`}
+                      style={{ backgroundColor: color.accent }}
+                      title={color.name}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-gray-600 ml-2">
+                  {DIARY_COLORS.find(c => c.id === selectedColor)?.name}
+                </span>
               </div>
-              <p className="text-sm text-gray-600 mt-2">
-                Couleur: {DIARY_COLORS.find(c => c.id === selectedColor)?.name}
-              </p>
             </div>
 
-            {/* V2: Sélecteur d'image de couverture */}
+            {/* V2: Bouton pour ouvrir le sélecteur d'image */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <ImageIcon className="w-4 h-4 inline mr-2" />
                 Image de couverture (optionnel)
               </label>
-              <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
-                {COVER_IMAGES.slice(0, 9).map((cover) => (
-                  <button
-                    key={cover.id}
-                    type="button"
-                    onClick={() => setSelectedCoverImage(cover.id === 'none' ? null : cover.id)}
-                    className={`aspect-video rounded-xl border-2 overflow-hidden transition-all duration-200 ${
-                      selectedCoverImage === cover.id || (cover.id === 'none' && !selectedCoverImage)
-                        ? 'border-gray-800 ring-2 ring-gray-300'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                    title={cover.name}
-                  >
-                    {cover.url ? (
-                      <img 
-                        src={cover.url} 
-                        alt={cover.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          // Si l'image n'existe pas, afficher un placeholder
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gradient-to-br ${getColorConfig(selectedColor).gradient} flex items-center justify-center text-xs text-gray-500">Image</div>`;
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xs text-gray-500">
-                        Aucune
+              <button
+                type="button"
+                onClick={() => setShowCoverPicker(true)}
+                className="w-full py-3 px-4 bg-gray-50 hover:bg-gray-100 border-2 border-gray-300 rounded-2xl transition-all duration-200 flex items-center justify-between"
+              >
+                <div className="flex items-center space-x-3">
+                  {selectedCoverImage ? (
+                    <>
+                      <div className="w-12 h-8 rounded-lg overflow-hidden border border-gray-300">
+                        <img 
+                          src={COVER_IMAGES.find(img => img.id === selectedCoverImage)?.url || ''} 
+                          alt="Aperçu"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
                       </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-              {COVER_IMAGES.length > 9 && (
-                <button
-                  type="button"
-                  onClick={() => setShowCoverPicker(!showCoverPicker)}
-                  className="mt-2 text-sm text-pink-600 hover:text-pink-700"
-                >
-                  {showCoverPicker ? 'Voir moins' : 'Voir toutes les images →'}
-                </button>
-              )}
+                      <span className="text-sm text-gray-700">
+                        {COVER_IMAGES.find(img => img.id === selectedCoverImage)?.name}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-sm text-gray-500">Choisir une image</span>
+                  )}
+                </div>
+                <ImageIcon className="w-5 h-5 text-gray-400" />
+              </button>
             </div>
 
             <div>
@@ -242,6 +231,91 @@ export default function DiarySection() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Modal de sélection d'image de couverture */}
+      {showCoverPicker && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-800">Choisis une image de couverture</h3>
+              <button
+                onClick={() => setShowCoverPicker(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Grille d'images par catégorie */}
+            <div className="space-y-6">
+              {['Aucune', 'Nature', 'Abstrait', 'Saisons', 'Émotions'].map((category) => {
+                const categoryImages = COVER_IMAGES.filter(img => img.category === category);
+                if (categoryImages.length === 0) return null;
+
+                return (
+                  <div key={category}>
+                    <h4 className="text-sm font-semibold text-gray-600 mb-3">{category}</h4>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                      {categoryImages.map((cover) => (
+                        <button
+                          key={cover.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCoverImage(cover.id === 'none' ? null : cover.id);
+                            setShowCoverPicker(false);
+                          }}
+                          className={`group aspect-video rounded-xl border-2 overflow-hidden transition-all duration-200 ${
+                            selectedCoverImage === cover.id || (cover.id === 'none' && !selectedCoverImage)
+                              ? 'border-pink-500 ring-4 ring-pink-200'
+                              : 'border-gray-300 hover:border-pink-400 hover:shadow-lg'
+                          }`}
+                        >
+                          {cover.url ? (
+                            <div className="relative w-full h-full">
+                              <img 
+                                src={cover.url} 
+                                alt={cover.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  // Si l'image n'existe pas, afficher un placeholder avec la couleur
+                                  const parent = e.currentTarget.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-${selectedColor}-100 to-${selectedColor}-50 flex items-center justify-center text-xs text-gray-500">${cover.name}</div>`;
+                                  }
+                                }}
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <p className="text-xs text-white font-medium truncate">{cover.name}</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                              <div className="text-center">
+                                <ImageIcon className="w-8 h-8 text-gray-400 mx-auto mb-1" />
+                                <p className="text-xs text-gray-500">{cover.name}</p>
+                              </div>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <button
+                onClick={() => setShowCoverPicker(false)}
+                className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-2xl font-medium hover:from-pink-600 hover:to-purple-700 transition-all duration-200"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
