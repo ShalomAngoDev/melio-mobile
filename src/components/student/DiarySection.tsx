@@ -111,18 +111,40 @@ export default function DiarySection() {
   };
 
   return (
-    <div className="relative space-y-6">
-      {/* Papillon en arrière-plan */}
+    <div className="relative space-y-6 bg-gradient-to-br from-pink-50 via-blue-50 to-purple-50 min-h-screen">
+      {/* Papillon en arrière-plan - Version améliorée */}
       <div 
-        className="fixed inset-0 flex items-center justify-center pointer-events-none"
+        className="fixed inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
         style={{ zIndex: 0 }}
       >
-        <img 
-          src="/logo-icon.png" 
-          alt="" 
-          className="w-96 h-96 opacity-5"
-          style={{ filter: 'blur(1px)' }}
-        />
+        {/* Papillon principal */}
+        <div className="w-80 h-80 opacity-50 transform rotate-12">
+          <img 
+            src="/logo-icon.png" 
+            alt="" 
+            className="w-full h-full object-contain drop-shadow-sm"
+          />
+        </div>
+        
+        {/* Papillons secondaires pour plus de profondeur */}
+        <div className="absolute top-20 left-10 w-32 h-32 opacity-50 transform -rotate-45">
+          <img 
+            src="/logo-icon.png" 
+            alt="" 
+            className="w-full h-full object-contain"
+          />
+        </div>
+        
+        <div className="absolute bottom-20 right-10 w-24 h-24 opacity-50 transform rotate-45">
+          <img 
+            src="/logo-icon.png" 
+            alt="" 
+            className="w-full h-full object-contain"
+          />
+        </div>
+        
+        {/* Effet de brillance subtil */}
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/8 to-transparent"></div>
       </div>
 
       {/* Header */}
