@@ -37,7 +37,7 @@ export default function DiarySection() {
 
   const userEntries = user ? getUserEntries(user.id) : [];
   
-  // Filtrer les entrées par date sélectionnée
+  // Filtrer les entrées par date
   const filteredEntries = selectedDate 
     ? userEntries.filter(entry => {
         const entryDate = new Date(entry.timestamp);
@@ -181,6 +181,7 @@ export default function DiarySection() {
         selectedDate={selectedDate}
         onDateSelect={setSelectedDate}
       />
+
 
       {/* V2: Widget Streak */}
       {userEntries.length > 0 && (
