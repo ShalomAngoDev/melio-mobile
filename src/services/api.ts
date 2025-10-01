@@ -132,6 +132,10 @@ export interface JournalEntry {
 export interface CreateJournalEntryDto {
   mood: 'TRES_TRISTE' | 'TRISTE' | 'NEUTRE' | 'CONTENT' | 'TRES_HEUREUX';
   contentText: string;
+  color?: string;
+  coverImage?: string;
+  tags?: string[];
+  photos?: string[];
 }
 
 export const journalService = {

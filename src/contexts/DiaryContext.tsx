@@ -102,6 +102,12 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('melio_diary', JSON.stringify(updatedEntries));
 
       // Synchroniser avec le backend
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.log('Pas de token d\'authentification, synchronisation ignorée');
+        return;
+      }
+
       const backendEntry = await journalService.createEntry(user.id, {
         mood: convertMoodToBackend(mood),
         contentText: content,
@@ -158,8 +164,14 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('melio_diary', JSON.stringify(updatedEntries));
 
     // Synchroniser avec le backend si possible
-    if (user) {
+    if (user && user.id) {
       try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          console.log('Pas de token d\'authentification, synchronisation ignorée');
+          return;
+        }
+
         await journalService.updateEntry(user.id, entryId, {
           mood: convertMoodToBackend(mood),
           contentText: content,
