@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { DIARY_COLORS, COVER_IMAGES, getColorConfig } from '../../config/diaryCustomization';
 import { PREDEFINED_TAGS, TAG_CATEGORIES, getTagById } from '../../config/tags';
 import StreakWidget from './StreakWidget';
+import DaySelector from './DaySelector';
 
 const moodIcons = {
   'very-sad': { icon: Frown, color: 'text-red-500', bg: 'bg-red-100', label: 'Très triste' },
@@ -31,8 +32,18 @@ export default function DiarySection() {
   const [showTagPicker, setShowTagPicker] = useState(false);
   // V2: Gamification
   const [streakInfo, setStreakInfo] = useState({ currentStreak: 0, bestStreak: 0 });
+  // V2: Sélecteur de jour
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const userEntries = user ? getUserEntries(user.id) : [];
+  
+  // Filtrer les entrées par date sélectionnée
+  const filteredEntries = selectedDate 
+    ? userEntries.filter(entry => {
+        const entryDate = new Date(entry.timestamp);
+        return entryDate.toISOString().split('T')[0] === selectedDate;
+      })
+    : userEntries;
 
   // V2: Récupérer le streak (TODO: depuis l'API)
   useEffect(() => {
@@ -164,6 +175,12 @@ export default function DiarySection() {
           </button>
         </div>
       </div>
+
+      {/* V2: Sélecteur de jour horizontal */}
+      <DaySelector 
+        selectedDate={selectedDate}
+        onDateSelect={setSelectedDate}
+      />
 
       {/* V2: Widget Streak */}
       {userEntries.length > 0 && (
@@ -702,14 +719,27 @@ export default function DiarySection() {
 
       {/* Entries List */}
       <div className="relative space-y-4" style={{ zIndex: 1 }}>
-        {userEntries.length === 0 ? (
+        {filteredEntries.length === 0 ? (
           <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 text-center shadow-lg border border-white/20">
             <Heart className="w-12 h-12 text-pink-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-700 mb-2">Ton journal t'attend</h3>
-            <p className="text-gray-500">Commence par écrire ta première entrée</p>
+            {selectedDate ? (
+              <>
+                <h3 className="text-lg font-medium text-gray-700 mb-2">Aucune entrée ce jour</h3>
+                <p className="text-gray-500">Tu n'as pas écrit dans ton journal le {new Date(selectedDate).toLocaleDateString('fr-FR', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long'
+                })}</p>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-medium text-gray-700 mb-2">Ton journal t'attend</h3>
+                <p className="text-gray-500">Commence par écrire ta première entrée</p>
+              </>
+            )}
           </div>
         ) : (
-          userEntries.map((entry) => {
+          filteredEntries.map((entry) => {
             const MoodIcon = moodIcons[entry.mood].icon;
             const moodConfig = moodIcons[entry.mood];
             const entryColorConfig = getColorConfig(entry.color || 'pink');

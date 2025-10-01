@@ -17,7 +17,6 @@ export default function StudentDashboard() {
 
   const menuItems = [
     { id: 'diary', label: 'Mon Journal', icon: BookOpen, color: 'pink' },
-    { id: 'calendar', label: 'Calendrier', icon: Calendar, color: 'green' }, // New calendar option
     { id: 'chat', label: 'Parler à Mélio', icon: MessageCircle, color: 'purple' },
     { id: 'library', label: 'Bibliothèque', icon: Sparkles, color: 'blue' },
     { id: 'report', label: 'Signalement', icon: Megaphone, color: 'pink' }
@@ -116,7 +115,6 @@ export default function StudentDashboard() {
           {/* Main Content */}
           <div className="lg:col-span-3 pb-24" style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom))' }}>
             {activeSection === 'diary' && <DiarySection />}
-            {activeSection === 'calendar' && <CalendarSection />} {/* Render CalendarSection */}
             {activeSection === 'chat' && <ChatSection />}
             {activeSection === 'achievements' && <AchievementsSection />}
             {activeSection === 'library' && <LibrarySection />}
