@@ -1,0 +1,109 @@
+/* Animations pour le chat Mélio - Animation de frappe uniquement */
+
+@keyframes typingDots {
+  0%, 20% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  80%, 100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Classes d'animation - Animation de frappe uniquement */
+
+.animate-typingDots {
+  animation: typingDots 1.4s infinite ease-in-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+.animate-bounceIn {
+  animation: bounceIn 0.6s ease-out forwards;
+}
+
+/* Messages sans animation d'arrivée */
+
+/* Animation de frappe améliorée */
+.typing-indicator {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.typing-dot {
+  animation: typingDots 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Bulles de messages sans effet de survol */
+
+/* Ressources sans animation d'apparition */
+
+/* Animation pour le badge de notification */
+.notification-badge {
+  animation: bounceIn 0.6s ease-out forwards;
+}
+
+/* Animation pour le bouton d'envoi */
+.send-button {
+  transition: all 0.2s ease;
+}
+
+.send-button:hover {
+  transform: scale(1.05);
+}
+
+.send-button:active {
+  transform: scale(0.95);
+}
+
+/* Animation pour l'input */
+.message-input {
+  transition: all 0.3s ease;
+}
+
+.message-input:focus {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+}
