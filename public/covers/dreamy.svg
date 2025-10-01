@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient-dreamy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a29bfe;stop-opacity:1" />
+      <stop offset="33.33333333333333%" style="stop-color:#fd79a8;stop-opacity:1" />
+      <stop offset="66.66666666666666%" style="stop-color:#fdcb6e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond avec gradient -->
+  <rect width="400" height="300" fill="url(#gradient-dreamy)" />
+  
+  <!-- Motif décoratif -->
+  <circle cx="50" cy="50" r="30" fill="rgba(255,255,255,0.1)" />
+  <circle cx="350" cy="80" r="40" fill="rgba(255,255,255,0.08)" />
+  <circle cx="80" cy="250" r="25" fill="rgba(255,255,255,0.06)" />
+  <circle cx="320" cy="220" r="35" fill="rgba(255,255,255,0.1)" />
+  
+  <!-- Texte du nom -->
+  <text x="200" y="160" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="Arial, sans-serif" font-size="24" font-weight="bold">
+    Rêverie
+  </text>
+  
+  <!-- Motif de fond subtil -->
+  <pattern id="dots-dreamy" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+    <circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)" />
+  </pattern>
+  <rect width="400" height="300" fill="url(#dots-dreamy)" />
+</svg>

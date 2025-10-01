@@ -76,124 +76,26 @@ export const DIARY_COLORS = [
 ];
 
 export const COVER_IMAGES = [
-  {
-    id: 'none',
-    name: 'Aucune image',
-    url: null,
-    category: 'Aucune'
-  },
-  // Nature
-  {
-    id: 'sky-sunset',
-    name: 'Coucher de soleil',
-    url: '/covers/sky-sunset.jpg',
-    category: 'Nature'
-  },
-  {
-    id: 'ocean-waves',
-    name: 'Vagues océan',
-    url: '/covers/ocean-waves.jpg',
-    category: 'Nature'
-  },
-  {
-    id: 'forest-trees',
-    name: 'Forêt',
-    url: '/covers/forest-trees.jpg',
-    category: 'Nature'
-  },
-  {
-    id: 'flowers-spring',
-    name: 'Fleurs',
-    url: '/covers/flowers-spring.jpg',
-    category: 'Nature'
-  },
-  {
-    id: 'mountains',
-    name: 'Montagnes',
-    url: '/covers/mountains.jpg',
-    category: 'Nature'
-  },
-  // Abstrait
-  {
-    id: 'gradient-pink',
-    name: 'Dégradé rose',
-    url: '/covers/gradient-pink.jpg',
-    category: 'Abstrait'
-  },
-  {
-    id: 'gradient-blue',
-    name: 'Dégradé bleu',
-    url: '/covers/gradient-blue.jpg',
-    category: 'Abstrait'
-  },
-  {
-    id: 'gradient-purple',
-    name: 'Dégradé violet',
-    url: '/covers/gradient-purple.jpg',
-    category: 'Abstrait'
-  },
-  {
-    id: 'watercolor',
-    name: 'Aquarelle',
-    url: '/covers/watercolor.jpg',
-    category: 'Abstrait'
-  },
-  {
-    id: 'pastel-clouds',
-    name: 'Nuages pastels',
-    url: '/covers/pastel-clouds.jpg',
-    category: 'Abstrait'
-  },
-  // Saisons
-  {
-    id: 'spring-garden',
-    name: 'Jardin printemps',
-    url: '/covers/spring-garden.jpg',
-    category: 'Saisons'
-  },
-  {
-    id: 'summer-beach',
-    name: 'Plage été',
-    url: '/covers/summer-beach.jpg',
-    category: 'Saisons'
-  },
-  {
-    id: 'autumn-leaves',
-    name: 'Feuilles automne',
-    url: '/covers/autumn-leaves.jpg',
-    category: 'Saisons'
-  },
-  {
-    id: 'winter-snow',
-    name: 'Neige hiver',
-    url: '/covers/winter-snow.jpg',
-    category: 'Saisons'
-  },
-  // Émotions/Atmosphères
-  {
-    id: 'calm-lake',
-    name: 'Lac calme',
-    url: '/covers/calm-lake.jpg',
-    category: 'Émotions'
-  },
-  {
-    id: 'peaceful-field',
-    name: 'Champ paisible',
-    url: '/covers/peaceful-field.jpg',
-    category: 'Émotions'
-  },
-  {
-    id: 'hope-sunrise',
-    name: 'Lever de soleil',
-    url: '/covers/hope-sunrise.jpg',
-    category: 'Émotions'
-  },
-  {
-    id: 'strength-tree',
-    name: 'Arbre fort',
-    url: '/covers/strength-tree.jpg',
-    category: 'Émotions'
-  }
+  { id: 'none', name: 'Aucune', url: null, category: 'Aucune' },
+  { id: 'sunset', name: 'Coucher de soleil', url: '/covers/sunset.svg', category: 'Nature' },
+  { id: 'ocean', name: 'Océan paisible', url: '/covers/ocean.svg', category: 'Nature' },
+  { id: 'forest', name: 'Forêt mystérieuse', url: '/covers/forest.svg', category: 'Nature' },
+  { id: 'mountain', name: 'Montagnes majestueuses', url: '/covers/mountain.svg', category: 'Nature' },
+  { id: 'flower', name: 'Fleur délicate', url: '/covers/flower.svg', category: 'Nature' },
+  { id: 'happy', name: 'Joie éclatante', url: '/covers/happy.svg', category: 'Émotions' },
+  { id: 'calm', name: 'Sérénité', url: '/covers/calm.svg', category: 'Émotions' },
+  { id: 'dreamy', name: 'Rêverie', url: '/covers/dreamy.svg', category: 'Émotions' },
+  { id: 'energetic', name: 'Énergie positive', url: '/covers/energetic.svg', category: 'Émotions' },
+  { id: 'school', name: 'École et apprentissage', url: '/covers/school.svg', category: 'Activités' },
+  { id: 'sport', name: 'Sport et mouvement', url: '/covers/sport.svg', category: 'Activités' },
+  { id: 'music', name: 'Musique et créativité', url: '/covers/music.svg', category: 'Activités' },
+  { id: 'art', name: 'Art et expression', url: '/covers/art.svg', category: 'Activités' },
+  { id: 'home', name: 'Maison et famille', url: '/covers/home.svg', category: 'Vie quotidienne' },
+  { id: 'friends', name: 'Amis et partage', url: '/covers/friends.svg', category: 'Vie quotidienne' },
+  { id: 'adventure', name: 'Aventure et découverte', url: '/covers/adventure.svg', category: 'Vie quotidienne' },
+  { id: 'night', name: 'Nuit étoilée', url: '/covers/night.svg', category: 'Vie quotidienne' },
+  { id: 'rainbow', name: 'Arc-en-ciel', url: '/covers/rainbow.svg', category: 'Vie quotidienne' },
+  { id: 'stars', name: 'Étoiles scintillantes', url: '/covers/stars.svg', category: 'Vie quotidienne' }
 ];
 
 export const getColorConfig = (colorId: string) => {
