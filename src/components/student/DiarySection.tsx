@@ -745,8 +745,9 @@ export default function DiarySection() {
           </div>
         ) : (
           filteredEntries.map((entry) => {
-            const MoodIcon = moodIcons[entry.mood].icon;
-            const moodConfig = moodIcons[entry.mood];
+            // Vérification de sécurité pour éviter les erreurs si mood n'existe pas
+            const moodConfig = moodIcons[entry.mood] || moodIcons['neutral'];
+            const MoodIcon = moodConfig.icon;
             const entryColorConfig = getColorConfig(entry.color || 'pink');
             return (
               <div

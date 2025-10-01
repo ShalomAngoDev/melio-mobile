@@ -22,10 +22,18 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState(false);
+
+  // Réinitialiser l'erreur d'authentification quand l'utilisateur change
+  useEffect(() => {
+    if (user) {
+      setAuthError(false);
+    }
+  }, [user]);
 
   // Charger les messages au démarrage
   useEffect(() => {
-    if (user) {
+    if (user && !authError) {
       loadMessages();
       // Désactiver le rechargement automatique pour éviter les interférences
       // const interval = setInterval(() => {
@@ -35,10 +43,18 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       // }, 30000);
       // return () => clearInterval(interval);
     }
-  }, [user, isLoading, messages.length]);
+  }, [user, isLoading, messages.length, authError]);
 
   const loadMessages = async () => {
     if (!user) return;
+
+    // Vérifier si l'utilisateur est authentifié
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      console.log('Utilisateur non authentifié, ne pas charger les messages');
+      setAuthError(true);
+      return;
+    }
 
     // Vérifier si les messages ont été effacés
     const isCleared = localStorage.getItem(`chat_cleared_${user.id}`);
@@ -120,7 +136,16 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
     } catch (err: any) {
       console.error('Erreur lors du chargement des messages:', err);
-      setError('Erreur lors du chargement des messages');
+      
+      // Si c'est une erreur 404, ne pas afficher d'erreur car c'est normal si l'utilisateur n'est pas connecté
+      if (err.response?.status === 404) {
+        console.log('Endpoint chat non trouvé - utilisateur probablement non authentifié');
+        setMessages([]);
+        setUnreadCount(0);
+        setAuthError(true);
+      } else {
+        setError('Erreur lors du chargement des messages');
+      }
     } finally {
       setIsLoading(false);
     }

@@ -12,6 +12,7 @@ export interface DiaryEntry {
   // V2: Nouveaux champs de personnalisation
   color?: string;
   coverImage?: string;
+  photos?: string[];
   tags?: string[];
   // Champs pour la synchronisation avec le backend
   synced?: boolean;
@@ -92,6 +93,7 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
         // V2: Nouveaux champs
         color: color || 'pink',
         coverImage,
+        photos: [], // TODO: Ajouter photos quand fonctionnalité sera implémentée
         tags: tags || []
       };
 
@@ -106,6 +108,7 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
         // V2: Champs de personnalisation
         color: color || 'pink',
         coverImage: coverImage,
+        photos: [], // TODO: Ajouter photos quand fonctionnalité sera implémentée
         tags: tags || []
       });
 
@@ -163,6 +166,7 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
           // V2: Champs de personnalisation
           color: color || 'pink',
           coverImage: coverImage,
+          photos: [], // TODO: Ajouter photos quand fonctionnalité sera implémentée
           tags: tags || []
         });
         
@@ -211,6 +215,7 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
         // V2: Champs de personnalisation
         color: entry.color || 'pink',
         coverImage: entry.coverImage,
+        photos: entry.photos || [],
         tags: entry.tags || [],
         // Analyse IA
         aiRiskScore: entry.aiRiskScore,
