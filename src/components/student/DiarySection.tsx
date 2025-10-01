@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Pencil, Calendar, Trash2, Heart, Frown, Meh, Smile, ChevronDown, ChevronUp, Palette, Image as ImageIcon, X } from 'lucide-react';
+import { Pencil, Calendar, Trash2, Heart, Frown, Meh, Smile, ChevronDown, ChevronUp, Palette, Image as ImageIcon, X, Tag as TagIcon } from 'lucide-react';
 import { useDiary } from '../../contexts/DiaryContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { DIARY_COLORS, COVER_IMAGES, getColorConfig } from '../../config/diaryCustomization';
+import { PREDEFINED_TAGS, TAG_CATEGORIES, getTagById } from '../../config/tags';
 
 const moodIcons = {
   'very-sad': { icon: Frown, color: 'text-red-500', bg: 'bg-red-100', label: 'Très triste' },
@@ -22,21 +23,32 @@ export default function DiarySection() {
   // V2: Nouveaux états pour personnalisation
   const [selectedColor, setSelectedColor] = useState('pink');
   const [selectedCoverImage, setSelectedCoverImage] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
+  const [showTagPicker, setShowTagPicker] = useState(false);
 
   const userEntries = user ? getUserEntries(user.id) : [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newEntry.trim()) {
-      await addEntry(newEntry.trim(), selectedMood, selectedColor, selectedCoverImage || undefined);
+      await addEntry(newEntry.trim(), selectedMood, selectedColor, selectedCoverImage || undefined, selectedTags);
       setNewEntry('');
       setSelectedMood('neutral');
       setSelectedColor('pink');
       setSelectedCoverImage(null);
+      setSelectedTags([]);
       setIsWriting(false);
     }
+  };
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tagId) 
+        ? prev.filter(id => id !== tagId)
+        : [...prev, tagId]
+    );
   };
 
   const formatDate = (date: Date) => {
@@ -196,6 +208,41 @@ export default function DiarySection() {
               </button>
             </div>
 
+            {/* V2: Sélecteur de tags */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <TagIcon className="w-4 h-4 inline mr-2" />
+                Catégories (optionnel)
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowTagPicker(true)}
+                className="w-full py-3 px-4 bg-gray-50 hover:bg-gray-100 border-2 border-gray-300 rounded-2xl transition-all duration-200 flex items-center justify-between"
+              >
+                <div className="flex items-center flex-wrap gap-2">
+                  {selectedTags.length > 0 ? (
+                    selectedTags.map(tagId => {
+                      const tag = getTagById(tagId);
+                      if (!tag) return null;
+                      return (
+                        <span 
+                          key={tagId}
+                          className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                          style={{ backgroundColor: tag.color + '20', color: tag.color }}
+                        >
+                          <span className="mr-1">{tag.icon}</span>
+                          {tag.name}
+                        </span>
+                      );
+                    })
+                  ) : (
+                    <span className="text-sm text-gray-500">Ajouter des catégories</span>
+                  )}
+                </div>
+                <TagIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              </button>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Raconte ta journée
@@ -224,6 +271,7 @@ export default function DiarySection() {
                   setSelectedMood('neutral');
                   setSelectedColor('pink');
                   setSelectedCoverImage(null);
+                  setSelectedTags([]);
                 }}
                 className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-2xl font-medium hover:bg-gray-300 transition-all duration-200"
               >
@@ -319,6 +367,87 @@ export default function DiarySection() {
         </div>
       )}
 
+      {/* Modal de sélection de tags */}
+      {showTagPicker && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-800">Catégories de ton entrée</h3>
+              <button
+                onClick={() => setShowTagPicker(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">Sélectionne une ou plusieurs catégories pour organiser tes entrées</p>
+
+            {/* Tags par catégorie */}
+            <div className="space-y-5">
+              {TAG_CATEGORIES.map((category) => {
+                const categoryTags = PREDEFINED_TAGS.filter(tag => tag.category === category);
+                if (categoryTags.length === 0) return null;
+
+                return (
+                  <div key={category}>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">{category}</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {categoryTags.map((tag) => {
+                        const isSelected = selectedTags.includes(tag.id);
+                        return (
+                          <button
+                            key={tag.id}
+                            type="button"
+                            onClick={() => toggleTag(tag.id)}
+                            className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                              isSelected
+                                ? 'shadow-md scale-105'
+                                : 'hover:scale-105 opacity-75 hover:opacity-100'
+                            }`}
+                            style={{
+                              backgroundColor: isSelected ? tag.color : tag.color + '20',
+                              color: isSelected ? 'white' : tag.color,
+                              border: `2px solid ${tag.color}${isSelected ? '' : '40'}`
+                            }}
+                          >
+                            <span className="mr-1.5">{tag.icon}</span>
+                            {tag.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 pt-6 border-t">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm text-gray-600">
+                  {selectedTags.length} catégorie{selectedTags.length !== 1 ? 's' : ''} sélectionnée{selectedTags.length !== 1 ? 's' : ''}
+                </span>
+                {selectedTags.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTags([])}
+                    className="text-sm text-red-600 hover:text-red-700"
+                  >
+                    Tout effacer
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setShowTagPicker(false)}
+                className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-2xl font-medium hover:from-pink-600 hover:to-purple-700 transition-all duration-200"
+              >
+                Confirmer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Entries List */}
       <div className="relative space-y-4" style={{ zIndex: 1 }}>
         {userEntries.length === 0 ? (
@@ -394,6 +523,30 @@ export default function DiarySection() {
                     </button>
                   </div>
                   
+                  {/* Tags de l'entrée */}
+                  {entry.tags && entry.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {entry.tags.map(tagId => {
+                        const tag = getTagById(tagId);
+                        if (!tag) return null;
+                        return (
+                          <span 
+                            key={tagId}
+                            className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                            style={{ 
+                              backgroundColor: tag.color + '20', 
+                              color: tag.color,
+                              border: `1px solid ${tag.color}40`
+                            }}
+                          >
+                            <span className="mr-1">{tag.icon}</span>
+                            {tag.name}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   {/* Contenu avec style amélioré */}
                   <div className="pl-2 border-l-4 border-transparent group-hover:border-pink-200 transition-colors duration-300">
                     <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-base">
