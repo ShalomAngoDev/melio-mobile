@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Pencil, Calendar, Trash2, Heart, Frown, Meh, Smile, ChevronDown, ChevronUp, Palette, Image as ImageIcon, X, Tag as TagIcon } from 'lucide-react';
 import { useDiary } from '../../contexts/DiaryContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { DIARY_COLORS, COVER_IMAGES, getColorConfig } from '../../config/diaryCustomization';
 import { PREDEFINED_TAGS, TAG_CATEGORIES, getTagById } from '../../config/tags';
+import StreakWidget from './StreakWidget';
 
 const moodIcons = {
   'very-sad': { icon: Frown, color: 'text-red-500', bg: 'bg-red-100', label: 'Très triste' },
@@ -27,8 +28,16 @@ export default function DiarySection() {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showCoverPicker, setShowCoverPicker] = useState(false);
   const [showTagPicker, setShowTagPicker] = useState(false);
+  // V2: Gamification
+  const [streakInfo, setStreakInfo] = useState({ currentStreak: 0, bestStreak: 0 });
 
   const userEntries = user ? getUserEntries(user.id) : [];
+
+  // V2: Récupérer le streak (TODO: depuis l'API)
+  useEffect(() => {
+    // Mock pour le moment - sera remplacé par un appel API
+    setStreakInfo({ currentStreak: userEntries.length > 0 ? 1 : 0, bestStreak: 1 });
+  }, [userEntries.length]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,6 +119,16 @@ export default function DiarySection() {
           </button>
         </div>
       </div>
+
+      {/* V2: Widget Streak */}
+      {userEntries.length > 0 && (
+        <div className="relative" style={{ zIndex: 1 }}>
+          <StreakWidget 
+            currentStreak={streakInfo.currentStreak} 
+            bestStreak={streakInfo.bestStreak} 
+          />
+        </div>
+      )}
 
       {/* New Entry Form */}
       {isWriting && (

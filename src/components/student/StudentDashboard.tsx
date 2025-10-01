@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { BookOpen, User, LogOut, Shield, Sparkles, Heart, Megaphone, X, School, GraduationCap, Hash, Phone, MessageCircle } from 'lucide-react';
+import { BookOpen, User, LogOut, Shield, Sparkles, Heart, Megaphone, X, School, GraduationCap, Hash, Phone, MessageCircle, Trophy } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useChat } from '../../contexts/ChatContext';
 import DiarySection from './DiarySection';
 import ChatSection from './ChatSection';
 import LibrarySection from './LibrarySection';
 import ReportSection from './ReportSection';
+import AchievementsSection from './AchievementsSection';
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth();
@@ -16,6 +17,7 @@ export default function StudentDashboard() {
   const menuItems = [
     { id: 'diary', label: 'Mon Journal', icon: BookOpen, color: 'pink' },
     { id: 'chat', label: 'Parler à Mélio', icon: MessageCircle, color: 'purple' },
+    { id: 'achievements', label: 'Mes Badges', icon: Trophy, color: 'yellow' },
     { id: 'library', label: 'Bibliothèque', icon: Sparkles, color: 'blue' },
     { id: 'report', label: 'Signalement', icon: Megaphone, color: 'pink' }
   ];
@@ -98,6 +100,7 @@ export default function StudentDashboard() {
           <div className="lg:col-span-3 pb-24" style={{ paddingBottom: 'calc(96px + env(safe-area-inset-bottom))' }}>
             {activeSection === 'diary' && <DiarySection />}
             {activeSection === 'chat' && <ChatSection />}
+            {activeSection === 'achievements' && <AchievementsSection />}
             {activeSection === 'library' && <LibrarySection />}
             {activeSection === 'report' && <ReportSection />}
           </div>
