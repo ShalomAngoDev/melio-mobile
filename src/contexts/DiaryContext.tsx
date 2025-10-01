@@ -9,6 +9,10 @@ export interface DiaryEntry {
   mood: 'very-sad' | 'sad' | 'neutral' | 'happy' | 'very-happy';
   timestamp: Date;
   isPrivate: boolean;
+  // V2: Nouveaux champs de personnalisation
+  color?: string;
+  coverImage?: string;
+  tags?: string[];
   // Champs pour la synchronisation avec le backend
   synced?: boolean;
   aiRiskScore?: number;
@@ -19,7 +23,7 @@ export interface DiaryEntry {
 
 interface DiaryContextType {
   entries: DiaryEntry[];
-  addEntry: (content: string, mood: DiaryEntry['mood']) => Promise<void>;
+  addEntry: (content: string, mood: DiaryEntry['mood'], color?: string, coverImage?: string, tags?: string[]) => Promise<void>;
   getUserEntries: (userId: string) => DiaryEntry[];
   deleteEntry: (entryId: string) => void;
   syncEntries: () => Promise<void>;
@@ -68,7 +72,7 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
     return moodMap[mood];
   };
 
-  const addEntry = async (content: string, mood: DiaryEntry['mood']) => {
+  const addEntry = async (content: string, mood: DiaryEntry['mood'], color?: string, coverImage?: string, tags?: string[]) => {
     if (!user) return;
 
     setIsLoading(true);
@@ -83,7 +87,11 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
         mood,
         timestamp: new Date(),
         isPrivate: true,
-        synced: false
+        synced: false,
+        // V2: Nouveaux champs
+        color: color || 'pink',
+        coverImage,
+        tags: tags || []
       };
 
       const updatedEntries = [newEntry, ...entries];
@@ -94,6 +102,7 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
       const backendEntry = await journalService.createEntry(user.id, {
         mood: convertMoodToBackend(mood),
         contentText: content
+        // TODO V2: Ajouter color, coverImage, tags quand backend sera mis à jour
       });
 
       // Mettre à jour l'entrée locale avec les données du backend

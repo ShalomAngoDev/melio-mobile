@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Pencil, Calendar, Trash2, Heart, Frown, Meh, Smile, ChevronDown, ChevronUp } from 'lucide-react';
+import { Pencil, Calendar, Trash2, Heart, Frown, Meh, Smile, ChevronDown, ChevronUp, Palette, Image as ImageIcon } from 'lucide-react';
 import { useDiary } from '../../contexts/DiaryContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { DIARY_COLORS, COVER_IMAGES, getColorConfig } from '../../config/diaryCustomization';
 
 const moodIcons = {
   'very-sad': { icon: Frown, color: 'text-red-500', bg: 'bg-red-100', label: 'Très triste' },
@@ -18,15 +19,22 @@ export default function DiarySection() {
   const [newEntry, setNewEntry] = useState('');
   const [selectedMood, setSelectedMood] = useState<keyof typeof moodIcons>('neutral');
   const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
+  // V2: Nouveaux états pour personnalisation
+  const [selectedColor, setSelectedColor] = useState('pink');
+  const [selectedCoverImage, setSelectedCoverImage] = useState<string | null>(null);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showCoverPicker, setShowCoverPicker] = useState(false);
 
   const userEntries = user ? getUserEntries(user.id) : [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newEntry.trim()) {
-      await addEntry(newEntry.trim(), selectedMood);
+      await addEntry(newEntry.trim(), selectedMood, selectedColor, selectedCoverImage || undefined);
       setNewEntry('');
       setSelectedMood('neutral');
+      setSelectedColor('pink');
+      setSelectedCoverImage(null);
       setIsWriting(false);
     }
   };
@@ -123,6 +131,82 @@ export default function DiarySection() {
               </p>
             </div>
 
+            {/* V2: Sélecteur de couleur */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Palette className="w-4 h-4 inline mr-2" />
+                Choisis une couleur pour ta feuille
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {DIARY_COLORS.map((color) => (
+                  <button
+                    key={color.id}
+                    type="button"
+                    onClick={() => setSelectedColor(color.id)}
+                    className={`w-12 h-12 rounded-full border-2 transition-all duration-200 ${
+                      selectedColor === color.id
+                        ? 'border-gray-800 scale-110 shadow-lg'
+                        : 'border-gray-300 hover:scale-105'
+                    }`}
+                    style={{ backgroundColor: color.accent }}
+                    title={color.name}
+                  />
+                ))}
+              </div>
+              <p className="text-sm text-gray-600 mt-2">
+                Couleur: {DIARY_COLORS.find(c => c.id === selectedColor)?.name}
+              </p>
+            </div>
+
+            {/* V2: Sélecteur d'image de couverture */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <ImageIcon className="w-4 h-4 inline mr-2" />
+                Image de couverture (optionnel)
+              </label>
+              <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+                {COVER_IMAGES.slice(0, 9).map((cover) => (
+                  <button
+                    key={cover.id}
+                    type="button"
+                    onClick={() => setSelectedCoverImage(cover.id === 'none' ? null : cover.id)}
+                    className={`aspect-video rounded-xl border-2 overflow-hidden transition-all duration-200 ${
+                      selectedCoverImage === cover.id || (cover.id === 'none' && !selectedCoverImage)
+                        ? 'border-gray-800 ring-2 ring-gray-300'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                    title={cover.name}
+                  >
+                    {cover.url ? (
+                      <img 
+                        src={cover.url} 
+                        alt={cover.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Si l'image n'existe pas, afficher un placeholder
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gradient-to-br ${getColorConfig(selectedColor).gradient} flex items-center justify-center text-xs text-gray-500">Image</div>`;
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 flex items-center justify-center text-xs text-gray-500">
+                        Aucune
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {COVER_IMAGES.length > 9 && (
+                <button
+                  type="button"
+                  onClick={() => setShowCoverPicker(!showCoverPicker)}
+                  className="mt-2 text-sm text-pink-600 hover:text-pink-700"
+                >
+                  {showCoverPicker ? 'Voir moins' : 'Voir toutes les images →'}
+                </button>
+              )}
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Raconte ta journée
@@ -149,6 +233,8 @@ export default function DiarySection() {
                   setIsWriting(false);
                   setNewEntry('');
                   setSelectedMood('neutral');
+                  setSelectedColor('pink');
+                  setSelectedCoverImage(null);
                 }}
                 className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-2xl font-medium hover:bg-gray-300 transition-all duration-200"
               >
@@ -171,15 +257,33 @@ export default function DiarySection() {
           userEntries.map((entry) => {
             const MoodIcon = moodIcons[entry.mood].icon;
             const moodConfig = moodIcons[entry.mood];
+            const entryColorConfig = getColorConfig(entry.color || 'pink');
             return (
               <div
                 key={entry.id}
-                className="group relative bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-md rounded-3xl p-6 shadow-lg border-2 border-white/40 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 overflow-hidden"
+                className="group relative bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-md rounded-3xl p-6 shadow-lg border-2 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 overflow-hidden"
+                style={{ 
+                  borderColor: entryColorConfig.accent + '40',
+                }}
               >
-                {/* Barre colorée selon l'humeur */}
+                {/* Image de couverture en arrière-plan */}
+                {entry.coverImage && (
+                  <div 
+                    className="absolute inset-0 rounded-3xl opacity-10 pointer-events-none"
+                    style={{
+                      backgroundImage: `url(${COVER_IMAGES.find(img => img.id === entry.coverImage)?.url})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center'
+                    }}
+                  />
+                )}
+
+                {/* Barre colorée personnalisée */}
                 <div 
-                  className={`absolute left-0 top-0 bottom-0 w-2 ${moodConfig.bg} rounded-l-3xl`}
-                  style={{ background: `linear-gradient(to bottom, ${moodConfig.color.replace('text-', 'var(--color-')}, transparent)` }}
+                  className={`absolute left-0 top-0 bottom-0 w-2 rounded-l-3xl`}
+                  style={{ 
+                    background: `linear-gradient(to bottom, ${entryColorConfig.accent}, transparent)` 
+                  }}
                 />
 
                 {/* Effet de brillance au survol */}
